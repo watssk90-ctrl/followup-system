@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Follow-up System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>const API_URL = "https://script.google.com/macros/s/AKfycbyZ82jtIoBVZNDIjsYVkv3hvI4t2yUKml5rR90uwDngQohHcx7pZ3pjenhBE8cigg3G/exec";</script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">ระบบติดตามผู้ผ่านการบำบัด</h2>
+      <input type="text" id="username" placeholder="รหัสเจ้าหน้าที่ (Officer ID)" class="w-full mb-4 p-3 border rounded">
+      <input type="password" id="password" placeholder="เบอร์โทรศัพท์" class="w-full mb-4 p-3 border rounded">
+      <button onclick="login()" class="w-full bg-blue-500 text-white p-3 rounded font-bold hover:bg-blue-600">เข้าสู่ระบบ</button>
+      <p id="loginStatus" class="text-red-500 text-center mt-4 hidden"></p>
+    </div>
+  </div>
+
+  <div id="appSection" class="hidden min-h-screen flex flex-col">
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
+      <h1 class="text-xl font-bold">เมนูหลัก</h1>
+      <button onclick="logout()" class="text-sm bg-red-500 px-3 py-1 rounded">ออกจากระบบ</button>
+    </nav>
+
+    <div id="userMenu" class="hidden p-4 space-y-4">
+      <div class="bg-white p-6 rounded shadow-md">
+        <h3 class="text-lg font-bold mb-4 border-b pb-2">ฟอร์มบันทึกการติดตาม</h3>
+        <input type="text" id="recordId" placeholder="รหัสผู้ผ่านการบำบัด (Record_ID)" class="w-full mb-3 p-2 border rounded">
+        <select id="method" class="w-full mb-3 p-2 border rounded">
+          <option value="ลงพื้นที่">ลงพื้นที่</option>
+          <option value="โทรศัพท์">โทรศัพท์</option>
+        </select>
+        <textarea id="note" placeholder="สรุปผลการติดตาม/หมายเหตุ" class="w-full mb-3 p-2 border rounded" rows="3"></textarea>
+        
+        <label class="block mb-2 font-semibold">อัปโหลดรูปภาพ:</label>
+        <input type="file" id="imageInput" accept="image/*" class="w-full mb-4 p-2 border rounded">
+        
+        <button onclick="getLocation()" class="w-full bg-green-500 text-white p-2 rounded mb-2">📍 ดึงพิกัด GPS ปัจจุบัน</button>
+        <p id="gpsStatus" class="text-sm text-gray-600 mb-4">พิกัด: ยังไม่ได้ดึงข้อมูล</p>
+        <input type="hidden" id="lat"><input type="hidden" id="lng">
+
+        <button onclick="submitTracking()" class="w-full bg-blue-600 text-white p-3 rounded font-bold">ส่งข้อมูลการติดตาม</button>
+      </div>
+    </div>
+
+    <div id="adminMenu" class="hidden p-4">
+      <div class="bg-white p-6 rounded shadow-md text-center">
+        <h3 class="text-xl font-bold mb-4">ส่วนจัดการของผู้ดูแลระบบ</h3>
+        <a href="https://docs.google.com/spreadsheets/d/1us6UCcSilEMd8bVa1p_aylnKdXH4yVH4UMUxOIY3qCI/edit" target="_blank" class="block bg-indigo-500 text-white p-3 rounded font-bold mb-3">🛠 จัดการฐานข้อมูล (Google Sheets)</a>
+      </div>
+    </div>
+
+    <div id="executiveMenu" class="hidden p-4">
+      <div class="bg-white p-6 rounded shadow-md text-center">
+        <h3 class="text-xl font-bold mb-4">Dashboard ผู้บริหาร</h3>
+        <a href="#" target="_blank" class="block bg-yellow-500 text-white p-3 rounded font-bold">📊 ดูรายงาน Looker Studio</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUserRole = "";
+    let currentUserName = "";
+
+    async function login() {
+      const btn = document.querySelector('button');
+      btn.innerText = "กำลังตรวจสอบ...";
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "login",
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      }).then(r => r.json());
+
+      if (res.status === 'success') {
+        currentUserRole = res.role;
+        currentUserName = res.name;
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('appSection').classList.remove('hidden');
+        setupRoleAccess();
+      } else {
+        document.getElementById('loginStatus').innerText = res.message;
+        document.getElementById('loginStatus').classList.remove('hidden');
+        btn.innerText = "เข้าสู่ระบบ";
+      }
+    }
+
+    // จัดการสิทธิ์การมองเห็นเมนูตามโครงสร้างที่ออกแบบ
+    function setupRoleAccess() {
+      if (currentUserRole === 'User') {
+        document.getElementById('userMenu').classList.remove('hidden');
+      } else if (currentUserRole === 'Admin') {
+        document.getElementById('adminMenu').classList.remove('hidden');
+      } else if (currentUserRole === 'Executive') {
+        document.getElementById('executiveMenu').classList.remove('hidden');
+      }
+    }
+
+    // ฟังก์ชันดึง GPS อัตโนมัติ
+    function getLocation() {
+      if (navigator.geolocation) {
+        document.getElementById('gpsStatus').innerText = "กำลังค้นหาพิกัด...";
+        navigator.geolocation.getCurrentPosition(position => {
+          document.getElementById('lat').value = position.coords.latitude;
+          document.getElementById('lng').value = position.coords.longitude;
+          document.getElementById('gpsStatus').innerText = `พิกัด: ${position.coords.latitude}, ${position.coords.longitude}`;
+        }, () => {
+          alert("ไม่สามารถดึงข้อมูลพิกัด GPS ได้ กรุณาเปิด Location Service");
+        });
+      }
+    }
+
+    // แปลงไฟล์รูปภาพเป็น Base64
+    function getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // ฟังก์ชันส่งข้อมูล
+    async function submitTracking() {
+      const lat = document.getElementById('lat').value;
+      if (!lat) return alert("กรุณาดึงพิกัด GPS ก่อนส่งข้อมูล");
+
+      const fileInput = document.getElementById('imageInput');
+      let base64String = "";
+      if (fileInput.files.length > 0) {
+        base64String = await getBase64(fileInput.files[0]);
+      }
+
+      const payload = {
+        action: "save_tracking",
+        recordId: document.getElementById('recordId').value,
+        method: document.getElementById('method').value,
+        note: document.getElementById('note').value,
+        latitude: lat,
+        longitude: document.getElementById('lng').value,
+        trackDate: new Date().toISOString().split('T')[0],
+        officerName: currentUserName,
+        imageB64: base64String
+      };
+
+      const btn = event.target;
+      btn.innerText = "กำลังบันทึกข้อมูล...";
+      
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+
+      if(res.status === 'success') {
+        alert("บันทึกข้อมูลเรียบร้อย!");
+        location.reload(); // รีเฟรชหน้าเพื่อเคลียร์ฟอร์ม
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
