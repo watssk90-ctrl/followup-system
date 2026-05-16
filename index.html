@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Follow-up System</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>const API_URL = "https://script.google.com/macros/s/AKfycbyZ82jtIoBVZNDIjsYVkv3hvI4t2yUKml5rR90uwDngQohHcx7pZ3pjenhBE8cigg3G/exec";</script>
+  
+  <script>const API_URL = "https://script.google.com/macros/library/d/100GqIErbylIIhiInc_mg8mijsE0E-AvU4G2iLONvWS4kF4N7KHJgBjuE/1";</script>
+  
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -20,40 +22,122 @@
   </div>
 
   <div id="appSection" class="hidden min-h-screen flex flex-col">
-    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
-      <h1 class="text-xl font-bold">เมนูหลัก</h1>
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md sticky top-0 z-50">
+      <h1 class="text-lg font-bold">Follow-up System</h1>
       <button onclick="logout()" class="text-sm bg-red-500 px-3 py-1 rounded">ออกจากระบบ</button>
     </nav>
 
-    <div id="userMenu" class="hidden p-4 space-y-4">
+    <div id="userMenu" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full">
       <div class="bg-white p-6 rounded shadow-md">
         <h3 class="text-lg font-bold mb-4 border-b pb-2">ฟอร์มบันทึกการติดตาม</h3>
-        <input type="text" id="recordId" placeholder="รหัสผู้ผ่านการบำบัด (Record_ID)" class="w-full mb-3 p-2 border rounded">
+        
+        <label class="block text-sm font-semibold mb-1">รหัสผู้ผ่านการบำบัด (Record_ID) <span class="text-red-500">*</span></label>
+        <input type="text" id="recordId" class="w-full mb-3 p-2 border rounded" required>
+
+        <label class="block text-sm font-semibold mb-1">รอบการติดตาม</label>
+        <select id="round" class="w-full mb-3 p-2 border rounded">
+          <option value="ครั้งที่ 1">ครั้งที่ 1</option>
+          <option value="ครั้งที่ 2">ครั้งที่ 2</option>
+          <option value="ครั้งที่ 3">ครั้งที่ 3</option>
+          <option value="ครั้งที่ 4">ครั้งที่ 4</option>
+        </select>
+
+        <label class="block text-sm font-semibold mb-1">วิธีการติดตาม</label>
         <select id="method" class="w-full mb-3 p-2 border rounded">
           <option value="ลงพื้นที่">ลงพื้นที่</option>
           <option value="โทรศัพท์">โทรศัพท์</option>
+          <option value="Video Call">Video Call</option>
         </select>
-        <textarea id="note" placeholder="สรุปผลการติดตาม/หมายเหตุ" class="w-full mb-3 p-2 border rounded" rows="3"></textarea>
+
+        <label class="block text-sm font-semibold mb-1">ผลการติดตาม</label>
+        <input type="text" id="result" placeholder="เช่น พบตัว, ไม่พบตัว" class="w-full mb-3 p-2 border rounded">
+
+        <label class="block text-sm font-semibold mb-1">ปัจจุบันพักอาศัยอยู่กับ</label>
+        <input type="text" id="livingWith" placeholder="ระบุบุคคลที่พักอาศัยอยู่ด้วย" class="w-full mb-3 p-2 border rounded">
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label class="block text-sm font-semibold mb-1">สภาพร่างกาย</label>
+            <select id="physical" class="w-full p-2 border rounded">
+              <option value="ปกติ">ปกติ</option>
+              <option value="เจ็บป่วย">เจ็บป่วย</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">สภาพจิตใจ</label>
+            <select id="mental" class="w-full p-2 border rounded">
+              <option value="ปกติ">ปกติ</option>
+              <option value="ซึมเศร้า">ซึมเศร้า</option>
+              <option value="ก้าวร้าว">ก้าวร้าว</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label class="block text-sm font-semibold mb-1">ความสัมพันธ์ครอบครัว</label>
+            <select id="familyRisk" class="w-full p-2 border rounded">
+              <option value="ดี">ดี</option>
+              <option value="ปานกลาง">ปานกลาง</option>
+              <option value="มีปัญหา">มีปัญหา</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">ความสัมพันธ์ชุมชน</label>
+            <select id="communityRisk" class="w-full p-2 border rounded">
+              <option value="ดี">ดี</option>
+              <option value="มีปัญหา">มีปัญหา</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="block text-sm font-semibold mb-1">พฤติกรรมเสี่ยงที่พบ</label>
+        <input type="text" id="riskBehavior" placeholder="ระบุพฤติกรรมเสี่ยง (ถ้ามี)" class="w-full mb-3 p-2 border rounded">
+
+        <label class="block text-sm font-semibold mb-1">ความช่วยเหลือที่ต้องการ</label>
+        <input type="text" id="helpNeeded" placeholder="เช่น ทุนประกอบอาชีพ, รักษาโรค" class="w-full mb-3 p-2 border rounded">
+
+        <div class="grid grid-cols-2 gap-2 mb-3 bg-red-50 p-3 rounded">
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-red-700">คะแนนความเสี่ยง</label>
+            <input type="number" id="riskScore" placeholder="Score" class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-red-700">ระดับความเสี่ยง</label>
+            <select id="riskLevel" class="w-full p-2 border rounded">
+              <option value="ต่ำ">ต่ำ</option>
+              <option value="ปานกลาง">ปานกลาง</option>
+              <option value="สูง">สูง</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="block text-sm font-semibold mb-1">หมายเหตุเพิ่มเติม</label>
+        <textarea id="note" placeholder="รายละเอียดอื่นๆ" class="w-full mb-3 p-2 border rounded" rows="2"></textarea>
         
-        <label class="block mb-2 font-semibold">อัปโหลดรูปภาพ:</label>
-        <input type="file" id="imageInput" accept="image/*" class="w-full mb-4 p-2 border rounded">
+        <label class="block text-sm font-semibold mb-2 mt-4 border-t pt-4">อัปโหลดรูปภาพ:</label>
+        <input type="file" id="imageInput" accept="image/*" class="w-full mb-4 p-2 border rounded bg-gray-50">
         
-        <button onclick="getLocation()" class="w-full bg-green-500 text-white p-2 rounded mb-2">📍 ดึงพิกัด GPS ปัจจุบัน</button>
-        <p id="gpsStatus" class="text-sm text-gray-600 mb-4">พิกัด: ยังไม่ได้ดึงข้อมูล</p>
+        <button onclick="getLocation()" class="w-full bg-green-500 text-white p-3 rounded mb-2 flex justify-center items-center font-bold">
+          📍 ดึงพิกัด GPS ปัจจุบัน <span class="text-red-500 ml-1">*</span>
+        </button>
+        <p id="gpsStatus" class="text-sm text-gray-600 mb-4 text-center">พิกัด: ยังไม่ได้ดึงข้อมูล</p>
         <input type="hidden" id="lat"><input type="hidden" id="lng">
 
-        <button onclick="submitTracking()" class="w-full bg-blue-600 text-white p-3 rounded font-bold">ส่งข้อมูลการติดตาม</button>
+        <button onclick="submitTracking(event)" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded font-bold text-lg shadow-lg mt-4">
+          ส่งข้อมูลการติดตาม
+        </button>
       </div>
     </div>
 
-    <div id="adminMenu" class="hidden p-4">
+    <div id="adminMenu" class="hidden p-4 max-w-lg mx-auto w-full">
       <div class="bg-white p-6 rounded shadow-md text-center">
         <h3 class="text-xl font-bold mb-4">ส่วนจัดการของผู้ดูแลระบบ</h3>
         <a href="https://docs.google.com/spreadsheets/d/1us6UCcSilEMd8bVa1p_aylnKdXH4yVH4UMUxOIY3qCI/edit" target="_blank" class="block bg-indigo-500 text-white p-3 rounded font-bold mb-3">🛠 จัดการฐานข้อมูล (Google Sheets)</a>
       </div>
     </div>
 
-    <div id="executiveMenu" class="hidden p-4">
+    <div id="executiveMenu" class="hidden p-4 max-w-lg mx-auto w-full">
       <div class="bg-white p-6 rounded shadow-md text-center">
         <h3 class="text-xl font-bold mb-4">Dashboard ผู้บริหาร</h3>
         <a href="#" target="_blank" class="block bg-yellow-500 text-white p-3 rounded font-bold">📊 ดูรายงาน Looker Studio</a>
@@ -67,31 +151,36 @@
     let currentUserName = "";
 
     async function login() {
-      const btn = document.querySelector('button');
+      const btn = document.querySelector('#loginSection button');
       btn.innerText = "กำลังตรวจสอบ...";
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "login",
-          username: document.getElementById('username').value,
-          password: document.getElementById('password').value
-        })
-      }).then(r => r.json());
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "login",
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+          })
+        }).then(r => r.json());
 
-      if (res.status === 'success') {
-        currentUserRole = res.role;
-        currentUserName = res.name;
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('appSection').classList.remove('hidden');
-        setupRoleAccess();
-      } else {
-        document.getElementById('loginStatus').innerText = res.message;
+        if (res.status === 'success') {
+          currentUserRole = res.role;
+          currentUserName = res.name;
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('appSection').classList.remove('hidden');
+          setupRoleAccess();
+        } else {
+          document.getElementById('loginStatus').innerText = res.message;
+          document.getElementById('loginStatus').classList.remove('hidden');
+          btn.innerText = "เข้าสู่ระบบ";
+        }
+      } catch (e) {
+        document.getElementById('loginStatus').innerText = "เชื่อมต่อ API ไม่สำเร็จ กรุณาตรวจสอบ URL";
         document.getElementById('loginStatus').classList.remove('hidden');
         btn.innerText = "เข้าสู่ระบบ";
       }
     }
 
-    // จัดการสิทธิ์การมองเห็นเมนูตามโครงสร้างที่ออกแบบ
     function setupRoleAccess() {
       if (currentUserRole === 'User') {
         document.getElementById('userMenu').classList.remove('hidden');
@@ -102,7 +191,6 @@
       }
     }
 
-    // ฟังก์ชันดึง GPS อัตโนมัติ
     function getLocation() {
       if (navigator.geolocation) {
         document.getElementById('gpsStatus').innerText = "กำลังค้นหาพิกัด...";
@@ -111,55 +199,112 @@
           document.getElementById('lng').value = position.coords.longitude;
           document.getElementById('gpsStatus').innerText = `พิกัด: ${position.coords.latitude}, ${position.coords.longitude}`;
         }, () => {
-          alert("ไม่สามารถดึงข้อมูลพิกัด GPS ได้ กรุณาเปิด Location Service");
+          alert("ไม่สามารถดึงข้อมูลพิกัด GPS ได้ กรุณาเปิด Location Service ในมือถือของคุณ");
         });
       }
     }
 
-    // แปลงไฟล์รูปภาพเป็น Base64
-    function getBase64(file) {
+    // ฟังก์ชันบีบอัดรูปภาพก่อนส่ง (ป้องกันไฟล์ใหญ่เกินและแอปค้าง)
+    function compressImage(file, maxWidth = 800, maxHeight = 800) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // คำนวณขนาดใหม่ให้ไม่เกินขีดจำกัด
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round((height *= maxWidth / width));
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round((width *= maxHeight / height));
+                height = maxHeight;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // บีบอัดเป็น JPEG ที่คุณภาพ 70%
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          };
+        };
+        reader.onerror = (error) => reject(error);
       });
     }
 
-    // ฟังก์ชันส่งข้อมูล
-    async function submitTracking() {
+    async function submitTracking(event) {
       const lat = document.getElementById('lat').value;
+      const recordId = document.getElementById('recordId').value;
+      
+      if (!recordId) return alert("กรุณากรอกรหัสผู้ผ่านการบำบัด (Record_ID)");
       if (!lat) return alert("กรุณาดึงพิกัด GPS ก่อนส่งข้อมูล");
 
-      const fileInput = document.getElementById('imageInput');
-      let base64String = "";
-      if (fileInput.files.length > 0) {
-        base64String = await getBase64(fileInput.files[0]);
-      }
-
-      const payload = {
-        action: "save_tracking",
-        recordId: document.getElementById('recordId').value,
-        method: document.getElementById('method').value,
-        note: document.getElementById('note').value,
-        latitude: lat,
-        longitude: document.getElementById('lng').value,
-        trackDate: new Date().toISOString().split('T')[0],
-        officerName: currentUserName,
-        imageB64: base64String
-      };
-
       const btn = event.target;
-      btn.innerText = "กำลังบันทึกข้อมูล...";
-      
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      }).then(r => r.json());
+      const originalText = btn.innerText;
+      btn.innerText = "⏳ กำลังบันทึกข้อมูล กรุณารอสักครู่...";
+      btn.disabled = true;
+      btn.classList.add("opacity-50");
 
-      if(res.status === 'success') {
-        alert("บันทึกข้อมูลเรียบร้อย!");
-        location.reload(); // รีเฟรชหน้าเพื่อเคลียร์ฟอร์ม
+      try {
+        const fileInput = document.getElementById('imageInput');
+        let base64String = "";
+        
+        // ถ้ารูปมีการเลือก จะทำการบีบอัดรูปก่อนส่ง
+        if (fileInput.files.length > 0) {
+          base64String = await compressImage(fileInput.files[0]);
+        }
+
+        const payload = {
+          action: "save_tracking",
+          recordId: recordId,
+          round: document.getElementById('round').value,
+          result: document.getElementById('result').value,
+          livingWith: document.getElementById('livingWith').value,
+          method: document.getElementById('method').value,
+          physical: document.getElementById('physical').value,
+          mental: document.getElementById('mental').value,
+          familyRisk: document.getElementById('familyRisk').value,
+          communityRisk: document.getElementById('communityRisk').value,
+          helpNeeded: document.getElementById('helpNeeded').value,
+          riskBehavior: document.getElementById('riskBehavior').value,
+          riskScore: document.getElementById('riskScore').value,
+          riskLevel: document.getElementById('riskLevel').value,
+          note: document.getElementById('note').value,
+          latitude: lat,
+          longitude: document.getElementById('lng').value,
+          trackDate: new Date().toISOString().split('T')[0],
+          officerName: currentUserName,
+          imageB64: base64String
+        };
+        
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+
+        if(res.status === 'success') {
+          alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว!");
+          location.reload(); 
+        } else {
+          alert("❌ เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: " + res.message);
+        }
+      } catch (error) {
+        alert("❌ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ API_URL หรือการเชื่อมต่ออินเทอร์เน็ต\n\nError: " + error.message);
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        btn.classList.remove("opacity-50");
       }
     }
 
